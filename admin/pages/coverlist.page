@@ -1,0 +1,80 @@
+<script>
+    function ShowHide(elementID) {
+	if (document.getElementById(elementID).style.display == "none"){
+	    document.getElementById(elementID).style.display = "inline";
+	}
+	else{
+	    document.getElementById(elementID).style.display = "none";
+	}
+    }
+</script>
+
+<?php
+    $dblink=mysql_connect($db["host"],$db["user"],$db["pw"])
+	or die("Cann't connect or authenticate to mysql server");
+    mysql_select_db($db["dbname"],$dblink)
+	or die("Cann't select database");
+    mysql_set_charset('utf8',$dblink);
+
+    $users_query = "SELECT ID,fullname FROM users";
+    $urep = mysql_query($users_query,$dblink)
+	or die("Cann't list users from database.");
+    while ($user = mysql_fetch_assoc($urep)){
+	$users[$user["ID"]] = $user["fullname"];
+    }
+
+
+    $select_query = "SELECT * FROM cover_request ORDER BY state, ID";
+    $rep = mysql_query($select_query,$dblink)
+	or die("Cann't list requests from database.");
+    mysql_close($dblink);
+    
+    $bgcolor = array (
+	0 => 'silver',
+	1 => 'white',
+    );
+    echo "<table class=\"list\">\n";
+    echo "  <tr><th class=\"list\">&nbsp<th class=\"list\">Titul<th class=\"list\">Autor<th class=\"list\">Žánr<th class=\"list\">Zpracovává</tr>\n";
+    
+    $index=0;
+    while ($request = mysql_fetch_assoc($rep)){
+	$workingid = explode(",",$request["zpracovava"]);
+	foreach ($workingid as $wid){
+	    $workingon[$wid] =  $users[$wid];
+	}
+	$request["workingon"] = implode("<br>",$workingon);
+	$workingon = array();
+	
+	$checkDone="";
+	$newState=2;
+	$colorClass="colorClassNormal";
+	if($request["state"] == 2){
+	    $checkDone = "checked";
+	    $newState=1;
+	    $colorClass="colorClassDone";
+	}
+	
+	echo "  <tr style=\"background-color: ".$bgcolor[$index]."\" class=\"".$colorClass."\">\n";
+	echo "    <td class=\"list\" onClick=\"location.href='index.php?page=coverlist&isdone=".$request["ID"]."&status=".$newState."'\"><span class=\"container\"><input type=\"checkbox\" ".$checkDone." name=\"setState\"><span class=\"checkmark\"></span></span></td>\n";
+	echo "    <td class=\"list\" onClick='ShowHide(\"details_\"+".$request["ID"].")'>".$request["title"]."</td>\n";
+	echo "    <td class=\"list\">".$request["author"]."</td>\n";
+	echo "    <td class=\"list\">".$request["zanr"]."</td>\n";
+	echo "    <td class=\"list\" nowrap>".$request["workingon"]."</td>\n";
+	echo "  </tr>\n";
+	
+	if($request["state"] != 2){
+?>
+    <tr><td colspan=4><table class="list" id="details_<?php echo $request["ID"]?>" style="display: none;">
+        <tr><th class="list detail">Pocit:</td><td class="list detail"><?php echo $request["pocit"]?></td></tr>
+        <tr><th class="list detail">Popis:</td><td class="list detail"><?php echo $request["popis"]?></td></tr>
+        <tr><th class="list detail">Další info:</td><td class="list detail"><?php echo $request["info"]?></td></tr>
+        <tr><th class="list detail">Kontakty:</td><td class="list detail"><?php echo $request["wp_user"]."<br>".$request["email"]?></td></tr>
+        <tr><th class="list detail">Předpokládaný termín dokončení:</td><td class="list detail"><?php echo $request["duedate"]?></td></tr>
+    </table></td></tr>
+    
+<?php
+	}
+	$index = abs($index - 1);
+    }
+    echo "</table>\n";
+?>

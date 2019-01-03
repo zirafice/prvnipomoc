@@ -1,0 +1,106 @@
+@font-face {
+    font-family: AmericaSans;
+    src: url('../fonts/AmericaSans.ttf'); 
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: AmericaSans1;
+    src: url('../fonts/AmericaSans1.ttf'); 
+    font-weight: normal;
+    font-style: normal;
+}
+
+html * {
+    font-family: AmericaSans, AmericaSans1, sans-serif;
+}
+
+td {
+    vertical-align: top;
+}
+
+.havetobe {
+    color: green;
+}
+
+.note {
+    font-size: small;
+    font-style: italic;
+}
+
+input, textarea {
+    font-family: sans-serif;
+}
+
+.under {
+  width: 100%;
+  height: 100%;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgb(132,228,118,0.4);
+  text-align: center;
+  z-index: 3;
+}
+
+.middle {
+  width: 750px;
+  display: inline-block;
+  height: 100%;
+  overflow: auto;
+  background-color: rgb(255,255,255,1);
+  text-align: center;
+  z-index: 2;
+}
+
+.space {
+    height: 5%;
+    width: 100%;
+    display: inline-block;
+}
+
+.bodytext {
+    text-align: left;
+    overflow: auto; 
+}
+
+a.menu {
+    text-decoration: none;
+    color: black;
+}
+
+a:visited.menu {
+    text-decoration: none;
+    color: black;
+}
+
+a:hover.menu {
+    text-decoration: none;
+    color: green;
+    font-style: bold;
+}
+
+.menu {
+
+}
+
+table.menu_table {
+    width: 100%;
+    padding-left: 2px;
+    padding-right: 2px;
+}
+
+.menu_right {
+    width: *;
+    text-align: right;
+}
+
+.menu_left {
+    text-align: left;
+    width: 20%;
+    padding-left: 5px;
+}
+
