@@ -1,0 +1,80 @@
+<?php
+    $dblink=mysql_connect($db["host"],$db["user"],$db["pw"])
+	or die("Chyba ppřipojení k databázi");
+    mysql_select_db($db["dbname"],$dblink);
+    mysql_set_charset('utf8',$dblink);
+
+if(isset($_POST["title"])){
+    $id = $_SESSION["ID"];
+    $title = mysql_escape_string($_POST["title"]);
+    $author = mysql_escape_string($_POST["autor"]);
+    $wp_user = mysql_escape_string($_POST["wpuser"]);
+    $zanr = mysql_escape_string($_POST["zanr"]);
+    $popis = mysql_escape_string($_POST["popis"]);
+    
+    $condition  = "ID = ".$_SESSION["ID"];
+    $querystr .= "title='".$title."'";
+    $querystr .= ", author='".$author."'";
+    $querystr .= ", popis='".$popis."'";
+    $querystr .= ", wp_user='".$wp_user."'";
+    $querystr .= ", zanr='".$zanr."'";
+    if(strlen($_POST["pocit"]) > 0){
+	$querystr .= ",pocit='".mysql_escape_string($_POST["pocit"])."'";
+    }
+    else{
+	$querystr .= ",pocit=NULL";
+    }
+
+    if(strlen($_POST["info"]) > 0){
+	$querystr .= ", info='".mysql_escape_string($_POST["info"])."'";
+    }
+    else{
+	$querystr .= ", info=NULL";
+    }
+    if(strlen($_POST["email"]) > 0){
+	$querystr .= ", email='".mysql_escape_string($_POST["email"])."'";
+    }
+    else{
+	$querystr .= ", email=NULL";
+    }
+    
+    $query="UPDATE `cover_request` SET " . $querystr . " WHERE ".$condition;
+    
+    mysql_query($query,$dblink)
+	or die("Chyba vlozeni - dotaz: ".$query);
+    mysql_close($dblink);
+    
+    header("Location: index.php?page=coverlist");
+    exit;
+}
+
+    $cover_info_query = "SELECT * FROM `cover_request` WHERE id=".$_SESSION["ID"];
+    $reply = mysql_query($cover_info_query,$dblink)
+	or die("Error while reading cover info.");
+
+    $cover_data = mysql_fetch_assoc($reply);
+
+?>
+<script src="./js/form_verify.js"></script>
+<center><h1>Editace žádosti o cover </h1></center>
+<form name="coverrequest" method="POST" action="index.php"> 
+ <table><tr>
+   <td><span class="havetobe">Jméno díla</span></td><td><input type="text" name="title" value="<?=$cover_data["title"];?>" size=64></td></td>
+ </tr><tr>
+   <td><span  class="havetobe">Autor</span><br><span class="note">(tak jak má vypadat na obálce)</span></td><td><input type="text" name="autor" value="<?=$cover_data["author"];?>" size=64></td>
+ </tr><tr>
+   <td><span class="havetobe">Žánr</span></td><td><input type="text" name="zanr" value="<?=$cover_data["zanr"];?>" size=32></td>
+ </tr><tr>
+   <td>Pocit, jakým by měl cover působit</td><td><input type="text" name="pocit" value="<?=$cover_data["pocit"];?>" size=32></td>
+ </tr><tr>
+   <td><span class="havetobe">Stručný popis díla</span></td><td><textarea name="popis" cols=50 rows=10><?=$cover_data["popis"];?></textarea></td>
+ </tr><tr>
+   <td>Další info <br><span class="note">(postavy, vaše představy či požadavky, ...)</span></td><td><textarea name="info" cols=50 rows=10><?=$cover_data["info"];?></textarea></td>
+ </tr><tr>
+   <td><span class="havetobe">Wattpad uživatel</span></td><td><input type="text" name="wpuser" size=32  value="<?=$cover_data["wp_user"];?>"></td>
+ </tr><tr>
+   <td>E-mail</i></td><td><input type="text" name="email" size=64 value="<?=$cover_data["email"];?>"></td>
+ </tr><tr>
+   <td colspan=2 style="text-align: right"><input type="submit" name="check_and_save" value="Uložit změny" style="border: 1px solid black"></td>
+ </tr></table>
+</form>
