@@ -1,0 +1,6 @@
+<br><br><br><br>
+<center><table><tr><td style="color: blue">
+Změny v žádosti <b><?php echo $_SESSION["askID"];?></b> byly provedeny.
+<br><br>
+S přáním pěkného dne První Pomoc
+</td></tr></table></center>
