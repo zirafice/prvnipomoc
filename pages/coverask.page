@@ -1,48 +1,22 @@
+<div><center>
+<br><br>
+<img src="./img/too_much_tasks.jpg">
+<br>
+<span style="font-size: 130%;">Omlouváme se, ale příjem objednávek na covery je dočasně pozastaven.</span>
+</center></div>
 <?php
-//var_dump($_POST);exit;
+exit;
+?>
+<?php
 if(isset($_POST["title"])){
     $dblink=mysql_connect($db["host"],$db["user"],$db["pw"])
 	or die("Chyba ppřipojení k databázi");
     mysql_select_db($db["dbname"],$dblink);
     mysql_set_charset('utf8',$dblink);
+    $ID = time();
     
-    $time=time();
-    $title = mysql_escape_string($_POST["title"]);
-    $author = mysql_escape_string($_POST["autor"]);
-    $wp_user = mysql_escape_string($_POST["wpuser"]);
-    $zanr = mysql_escape_string($_POST["zanr"]);
-    $popis = mysql_escape_string($_POST["popis"]);
+    save_cover_ask($ID,$_POST,$dblink);
     
-    $querystr  = "ID = ".$time;
-    $querystr .= ", title='".$title."'";
-    $querystr .= ", author='".$author."'";
-    $querystr .= ", popis='".$popis."'";
-    $querystr .= ", wp_user='".$wp_user."'";
-    $querystr .= ", zanr='".$zanr."'";
-    if(strlen($_POST["pocit"]) > 0){
-	$querystr .= ",pocit='".mysql_escape_string($_POST["pocit"])."'";
-    }
-    else{
-	$querystr .= ",pocit=NULL";
-    }
-
-    if(strlen($_POST["info"]) > 0){
-	$querystr .= ", info='".mysql_escape_string($_POST["info"])."'";
-    }
-    else{
-	$querystr .= ", info=NULL";
-    }
-    if(strlen($_POST["email"]) > 0){
-	$querystr .= ", email='".mysql_escape_string($_POST["pocit"])."'";
-    }
-    else{
-	$querystr .= ", email=NULL";
-    }
-    
-    $query="INSERT INTO `cover_request` SET " . $querystr;
-    
-    mysql_query($query,$dblink)
-	or die("Chyba vlozeni - dotaz: ".$query);
     mysql_close($dblink);
     
     $subject = "New cover request";
@@ -59,28 +33,18 @@ if(isset($_POST["title"])){
     );
     mail("prvni.pomoc@post.cz",$subject,$message,implode("\n", $headerFields));
     header("Location: index.php?page=thanks");
+    exit;
 }
+if(isset($_POST["confirmed"])){
+    include("./js/form_verify.js");
+    include("./inc/coverask_form.inc");
+    exit;
+}
+echo "<div style=\"margin:30px 20px 0 20px;\">";
+include("./inc/pravidla.inc");
+echo "</div>";
 ?>
-<script src="./js/form_verify.js"></script>
-<center><h1>Žádost o cover </h1></center>
-<form name="coverrequest" method="POST" action="index.php"> 
- <table><tr>
-   <td><span class="havetobe">Jméno díla</span></td><td><input type="text" name="title" size=64></td></td>
- </tr><tr>
-   <td><span  class="havetobe">Autor</span><br><span class="note">(tak jak má vypadat na obálce)</span></td><td><input type="text" name="autor" size=64></td>
- </tr><tr>
-   <td><span class="havetobe">Žánr</span></td><td><input type="text" name="zanr" size=32></td>
- </tr><tr>
-   <td>Pocit, jakým by měl cover působit</td><td><input type="text" name="pocit" size=32></td>
- </tr><tr>
-   <td><span class="havetobe">Stručný popis díla</span></td><td><textarea name="popis" cols=50 rows=10></textarea></td>
- </tr><tr>
-   <td>Další info <br><span class="note">(postavy, vaše představy či požadavky, ...)</span></td><td><textarea name="info" cols=50 rows=10></textarea></td>
- </tr><tr>
-   <td><span class="havetobe">Wattpad uživatel</span></td><td><input type="text" name="wpuser" size=32></td>
- </tr><tr>
-   <td>E-mail</i></td><td><input type="text" name="email" size=64></td>
- </tr><tr>
-   <td colspan=2 style="text-align: right"><input type="button" name="check_and_save" value="Odeslat" style="border: 1px solid black" onClick="VerifyCoverForm(document.coverrequest)"></td>
- </tr></table>
+<form name="pravidla" method="POST">
+    <br>
+    <div style="text-align: right; margin-right: 20px;"> <input type="submit" name="confirmed" value="Souhlasím s pravidly"> </div>
 </form>

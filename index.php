@@ -1,11 +1,16 @@
 <?php
     require("./inc/header_common.inc");
+    require("./fnc/common.fnc");
     require("./conf/mysql.conf");
 
     if(isset($_GET["page"])){
 	$_SESSION["page"] = $_GET["page"];
 	header("Location: index.php");
 	exit;
+    }
+    
+    if(!isset($_SESSION["page"])){
+	$_SESSION["page"] = "welcome";
     }
 ?>
 
@@ -16,10 +21,10 @@
 <body>
  <div class="under">
   <div class="middle">
-    <img src="./img/web_banner.jpg" usemap="#logomap">
-    <map name="logomap">
-      <area shape="rect" coords="0,0,93,93" href="index.php" alt="Home">
-    </map>
+    <div class="top">
+        <div class="logo"><a href="index.php?page=welcome"><img src="./img/logo.png" width=100></a></div>
+        <div class="title">První pomoc Wattpadu</div>
+    </div>
     <div class="space"></div>
     <div class="menu">
 	<?php require("./inc/menu.inc");?>

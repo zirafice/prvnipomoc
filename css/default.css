@@ -12,8 +12,15 @@
     font-style: normal;
 }
 
+@font-face {
+    font-family: Gido;
+    src: url('../fonts/Gidolinya-Regular.ttf'); 
+    font-weight: normal;
+    font-style: normal;
+}
+
 html * {
-    font-family: AmericaSans, AmericaSans1, sans-serif;
+    font-family: Gido, sans-serif;
 }
 
 td {
@@ -47,7 +54,7 @@ input, textarea {
 }
 
 .middle {
-  width: 750px;
+  width: 950px;
   display: inline-block;
   height: 100%;
   overflow: auto;
@@ -104,3 +111,21 @@ table.menu_table {
     padding-left: 5px;
 }
 
+.top {
+    height: 110px;
+    vertical-align: bottom;
+}
+
+.title {
+    font-family: Gido, sans-serif;
+    font-size: 60px;
+    text-align: center;
+    padding: 25px 0 25px 0;
+}
+
+.logo {
+    float: left;
+    height: 110px;
+    width: 110px;
+    padding: 5px;
+}

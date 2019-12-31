@@ -1,0 +1,56 @@
+<?php
+if(isset($_POST["title"])){
+    $dblink=mysql_connect($db["host"],$db["user"],$db["pw"])
+	or die("Chyba ppřipojení k databázi");
+    mysql_select_db($db["dbname"],$dblink);
+    mysql_set_charset('utf8',$dblink);
+    $ID = ;
+    
+    save_cover_ask($_POST["askid"],$_POST,$dblink);
+    
+    mysql_close($dblink);
+    
+    header("Location: index.php?page=thanks?ID=".$ID);
+    exit;
+}
+
+if (isset($_POST["askid"])){
+    $askid=mysql_escape_string($_POST["askid"]);
+    
+    $dblink=mysql_connect($db["host"],$db["user"],$db["pw"])
+        or die("Chyba připojení k databázi");
+    mysql_select_db($db["dbname"],$dblink);
+    mysql_set_charset('utf8',$dblink);
+
+
+    $query="SELECT * FROM cover_request WHERE ID=".$askid;
+    $cover_reply=mysql_query($query,$dblink);
+    if (mysql_num_rows($cover_reply) != 1){
+	echo "<br><center>Bohužel, požadavek s ID ".$askid." nebyl nalezen. Prosím, zkontrolujte zadané ID a zkuste to znovu.</center>";
+	mysql_close($dblink);
+	exit;
+    }
+    $cover = mysql_fetch_assoc($cover_reply);
+    $deployChecked = array(
+	0 => "",
+	1 => "",
+	3 => "",
+	5 => "",
+	7 => "",
+	10 => "",
+    );
+    $deployChecked[$cover["DeployDate"]] = "checked";
+    include("./inc/edittask_form.inc");
+    exit;
+}
+else{
+?>
+<br>
+<form name="edittask" method="POST" action="index.php">
+<table><tr>
+    <th>Idetifikátor požadavku:<td><input type="text" size=30 name="askid">
+    <tr><td colspan=2 style="text-align: right"><input type="submit" name="editIt" value="Editovat">
+</table>
+</form>
+<?php
+}

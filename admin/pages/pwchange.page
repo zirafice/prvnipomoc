@@ -1,0 +1,64 @@
+<script>
+ function checkForm(form2check) {
+    var checkPW = form2check.newpwchk.value;
+    var PW = form2check.newpw.value;
+    var oldPW = form2check.oldpw.value;
+    
+    if( oldPW.length == 0){
+	alert("Nezadali jste původní heslo.");
+	form2check.oldpw.focus();
+	return false;
+    }
+    if( checkPW.length == 0 || PW.length == 0){
+	alert("Prázdné heslo není povoleno.");
+	form2check.newpw.focus();
+	return false;
+    }
+    if(PW != checkPW){
+	alert("Hesla nejsou stejná!");
+	form2check.newpw.focus();
+	return false;
+    }
+    form2check.checked.value =1;
+    form2check.submit();
+ }
+</script>
+<?php
+    if ($_POST["checked"] == 1){
+	$dblink=mysql_connect($db["host"],$db["user"],$db["pw"])
+	    or die("Cann't connect or authenticate to mysql server");
+	mysql_select_db($db["dbname"],$dblink)
+	or die("Cann't select database.");
+	mysql_set_charset('utf8',$dblink);
+	    
+	$getpw_query = "SELECT password FROM users WHERE ID=".$_SESSION["loggedIn"];
+	$rep = mysql_query($getpw_query,$dblink)
+	    or die("Cann't compare passwords: ".mysql_error($dblink));
+	$oldPW=$_POST["oldpw"];
+	$data=mysql_fetch_assoc($rep);
+	if ( password_match($oldPW,$data["password"])){
+	    $newPW = mysql_escape_string($_POST["newpw"]);
+	    $newPWchk = mysql_escape_string($_POST["newpwchk"]);
+	    if(strcmp($newPW,$newPWchk) == 0){
+		$setpw_query = "UPDATE users set password=\"{PLAIN}".$newPW."\" WHERE ID=".$_SESSION["loggedIn"];
+		mysql_query($setpw_query,$dblink)
+		    or die("Cann't set new password: ".mysql_error($dblink));
+		echo "<div class=\"info\"> Heslo bylo úspěšně změněno</div>";
+		exit;
+	    }
+	}
+	else{
+	    echo "<div class=\"warn\"> Chybka, zkuste to znovu, tentokrát se správným původním heslem.</div>";
+	}
+    }
+?>
+
+<form name="pwchange" method="POST">
+  <table>
+   <tr><td>Původní heslo:<td><input type="password" name="oldpw"></tr>
+   <tr><td>Nové heslo:<td><input type="password" name="newpw"></tr>
+   <tr><td>Nové heslo:<br><i>kontrola</i><td><input type="password" name="newpwchk"></tr>
+   <tr><td colspan=2 style="text-align: right;"><input type="button" onClick="checkForm(document.forms.pwchange)" name="changeit" value="Změň"></td></tr>
+  </table>
+  <input type="hidden" name="checked" value=0>
+</form>

@@ -1,4 +1,5 @@
-function VerifyCoverForm(form2check){
+<script language="JavaScript">
+  function VerifyCoverForm(form2check){
     submitIT=1;
     
     if(form2check.elements["title"].value == ""){
@@ -31,4 +32,5 @@ function VerifyCoverForm(form2check){
     if (submitIT == 1) {
 	form2check.submit();
     }
-}
+  }
+</script>

@@ -10,71 +10,198 @@
 </script>
 
 <?php
+    function PrintOneRequest($info,$color,$colorClass,$type,$dblink){
+	$bgcolor = array (
+	    0 => 'silver',
+	    1 => 'white',
+	);
+	$icons = "";
+	switch ($type){
+	    case 0:{
+		$icons="<input type=\"image\" name=\"down\" src=\"img/down.png\" onClick = 'window.location=\"index.php?action=accept&id=".$info["ID"]."\"'>";
+		$icons.="<input type=\"image\" name=\"blank\" src=\"img/blank.png\">";
+		$icons.="<input type=\"image\" name=\"delete\" src=\"img/cross.png\"  onClick = 'window.location=\"index.php?action=del&id=".$info["ID"]."\"'>";
+	    };break;
+	    case 1:
+	    case 2:{
+		$icons="<input type=\"image\" name=\"down\" src=\"img/down.png\" onClick = 'window.location=\"index.php?action=down&id=".$info["ID"]."\"'>";
+		$icons.="<input type=\"image\" name=\"up\" src=\"img/up.png\"  onClick = 'window.location=\"index.php?action=up&id=".$info["ID"]."\"'>";
+		$icons.="<input type=\"image\" name=\"delete\" src=\"img/cross.png\"  onClick = 'window.location=\"index.php?action=del&id=".$info["ID"]."\"'>";
+	    };break;
+	    case 3:{
+		$icons="<input type=\"image\" name=\"blank\" src=\"img/blank.png\">";
+		$icons.="<input type=\"image\" name=\"up\" src=\"img/up.png\"  onClick = 'window.location=\"index.php?action=up&id=".$info["ID"]."\"'>";
+		$icons.="<input type=\"image\" name=\"delete\" src=\"img/cross.png\"  onClick = 'window.location=\"index.php?action=del&id=".$info["ID"]."\"'>";
+	    };break;
+	}
+
+	echo "  <tr style=\"background-color: ".$bgcolor[$color]."\" class=\"".$colorClass."\">\n";
+	echo "    <td class=\"list icon_cell\">\n";
+	echo "    <input type=\"image\" name=\"edit\" src=\"img/edit.png\" onClick = 'window.location=\"index.php?page=editCR&id=".$info["ID"]."\"'>";
+	echo $icons;
+	echo "    </td>\n";
+	echo "    <td class=\"list\" onClick='ShowHide(\"details_\"+".$info["ID"].")' nowrap>".$info["title"]."</td>\n";
+	echo "    <td class=\"list\">".$info["zanr"]."</td>\n";
+	if($type < 3){
+	    if($info["workingon"] == NULL){
+		echo "    <td class=\"list workon_cell\" nowrap>";
+		if($_SESSION["admin"] == 1){
+		    $query_users = "SELECT ID,wpname FROM users WHERE disabled = 0";
+		    $userres=mysql_query($query_users,$dblink)
+			or die("Error: ".$query_users);
+		    $options="";
+		    while ($row=mysql_fetch_assoc($userres)){
+			$options.="<option value=\"".$row["ID"]."\">".$row["wpname"]."</option>\n";
+		    }
+		    echo "<form name=\"set_worker\" action=\"index.php\">\n";
+		    echo "<input type=\"hidden\" name=\"action\" value=\"signto\">";
+		    echo "<input type=\"hidden\" name=\"id\" value=\"".$info["ID"]."\">";
+		    echo "<select name=\"whom2assign\">".$options."</select>\n";
+		    echo "<input type=image src=\"img/signto.png\" onClick=this.form.submit()>\n";
+		    echo "&nbsp;<span onClick = 'window.location=\"index.php?action=take&id=".$info["ID"]."\"'><img src=\"img/assign.png\"></span>&nbsp;";
+		    echo "</form>\n";
+		}
+		else{
+		    echo "<span onClick = 'window.location=\"index.php?action=take&id=".$info["ID"]."\"'><img src=\"img/assign.png\"></span>&nbsp;";
+		}
+		echo "</td>\n";
+	    }
+	    else if ($info["workingid"] == $_SESSION["loggedIn"] || $_SESSION["admin"] == 1)
+		echo "    <td class=\"list workon_cell\" nowrap><span onClick = 'window.location=\"index.php?action=leave&id=".$info["ID"]."\"'><img src=\"img/unsign.png\"></span>&nbsp;".$info["workingon"]."</td>\n";
+	    else
+		echo "    <td class=\"list workon_cell\" nowrap>".$info["workingon"]."</td>\n";
+	}
+	echo "  </tr>\n";
+	echo "  <tr><td colspan=4>\n";
+	echo "    <table class=\"list\" id=\"details_".$info["ID"]."\" style=\"display: none;\">\n";
+        echo "      <tr><th class=\"list detail\">Autor:</td><td class=\"list detail\">".$info["author"]."</td></tr>\n";
+        echo "      <tr><th class=\"list detail\">Pocit:</td><td class=\"list detail\">".$info["pocit"]."</td></tr>\n";
+        echo "      <tr><th class=\"list detail\">Popis:</td><td class=\"list detail\">".$info["popis"]."</td></tr>\n";
+        echo "      <tr><th class=\"list detail\">Další info:</td><td class=\"list detail\">".$info["info"]."</td></tr>\n";
+        echo "      <tr><th class=\"list detail\">Kontakty:</td><td class=\"list detail\">".$info["wp_user"]."<br>".$info["email"]."</td></tr>\n";
+        echo "      <tr><th class=\"list detail\">Předpokládané vydání:</td><td class=\"list detail\">";
+switch ($info["DeployDate"]){
+    case 10:{
+	echo "Vydáno";
+    };break;
+    case 7:{
+	echo "Do měsíce";
+    };break;
+    case 5:{
+	echo "Do půl roku";
+    };break;
+    case 3:{
+	echo "Do roka";
+    };break;
+    case 0:{
+	echo "Na WP nebude";
+    };break;
+    default:{
+	echo "Není znám";
+    };
+
+}
+        echo "	    </td></tr>\n";
+        echo "    </table>\n";
+        echo "  </td></tr>\n";
+    }
+
     $dblink=mysql_connect($db["host"],$db["user"],$db["pw"])
 	or die("Cann't connect or authenticate to mysql server");
     mysql_select_db($db["dbname"],$dblink)
 	or die("Cann't select database");
     mysql_set_charset('utf8',$dblink);
+    
 
-    $users_query = "SELECT ID,fullname FROM users";
+//users query
+    $users_query = "SELECT ID,fullname, wpname FROM users";
     $urep = mysql_query($users_query,$dblink)
 	or die("Cann't list users from database.");
     while ($user = mysql_fetch_assoc($urep)){
-	$users[$user["ID"]] = $user["fullname"];
+	$users[$user["ID"]] = $user["fullname"]." <i>(".$user["wpname"].")</i>";
     }
 
-
-    $select_query = "SELECT * FROM cover_request ORDER BY state, ID";
+//cover_query
+    $select_query = "SELECT * FROM cover_request WHERE deleted = 0 ORDER BY state, DeployDate DESC , ID";
     $rep = mysql_query($select_query,$dblink)
 	or die("Cann't list requests from database.");
-    mysql_close($dblink);
     
-    $bgcolor = array (
-	0 => 'silver',
-	1 => 'white',
-    );
-    echo "<table class=\"list\">\n";
-    echo "  <tr><th class=\"list\">&nbsp<th class=\"list\">Titul<th class=\"list\">Autor<th class=\"list\">Žánr<th class=\"list\">Zpracovává</tr>\n";
-    
-    $index=0;
-    while ($request = mysql_fetch_assoc($rep)){
-	$workingid = explode(",",$request["zpracovava"]);
-	foreach ($workingid as $wid){
-	    $workingon[$wid] =  $users[$wid];
+    $indexN=$indexA=$indexW=$indexD=0;
+    $request_new = $request_active = $request_waiting = $request_done = array();
+    while ($request_data = mysql_fetch_assoc($rep)){
+	if(strlen($request_data["zpracovava"]) > 0){
+	    $workingid[0] = $request_data["zpracovava"];
+	    $request_data["workingid"] = $request_data["zpracovava"];
+	    $workingon = array();
+	    foreach ($workingid as $wid){
+		$workingon[$wid] =  $users[$wid];
+	    }
+	    $request_data["workingon"] = implode("<br>",$workingon);
 	}
-	$request["workingon"] = implode("<br>",$workingon);
-	$workingon = array();
+	else{
+	    $request_data["workingon"] = "";
+	}
 	
 	$checkDone="";
 	$newState=2;
-	$colorClass="colorClassNormal";
-	if($request["state"] == 2){
-	    $checkDone = "checked";
-	    $newState=1;
-	    $colorClass="colorClassDone";
+	$checkclass="checkmark";
+	switch($request_data["state"]){
+	    case 0:{
+		$request_new[$indexN++] = $request_data;
+	    };break;
+	    case 1:{
+		$request_active[$indexA++] = $request_data;
+	    };break;
+	    case 2:{
+		$request_waiting[$indexW++] = $request_data;
+	    };break;
+	    case 3:{
+		$request_done[$indexD++] = $request_data;
+	    };break;
 	}
-	
-	echo "  <tr style=\"background-color: ".$bgcolor[$index]."\" class=\"".$colorClass."\">\n";
-	echo "    <td class=\"list\" onClick=\"location.href='index.php?page=coverlist&isdone=".$request["ID"]."&status=".$newState."'\"><span class=\"container\"><input type=\"checkbox\" ".$checkDone." name=\"setState\"><span class=\"checkmark\"></span></span></td>\n";
-	echo "    <td class=\"list\" onClick='ShowHide(\"details_\"+".$request["ID"].")'>".$request["title"]."</td>\n";
-	echo "    <td class=\"list\">".$request["author"]."</td>\n";
-	echo "    <td class=\"list\">".$request["zanr"]."</td>\n";
-	echo "    <td class=\"list\" nowrap>".$request["workingon"]."</td>\n";
-	echo "  </tr>\n";
-	
-	if($request["state"] != 2){
-?>
-    <tr><td colspan=4><table class="list" id="details_<?php echo $request["ID"]?>" style="display: none;">
-        <tr><th class="list detail">Pocit:</td><td class="list detail"><?php echo $request["pocit"]?></td></tr>
-        <tr><th class="list detail">Popis:</td><td class="list detail"><?php echo $request["popis"]?></td></tr>
-        <tr><th class="list detail">Další info:</td><td class="list detail"><?php echo $request["info"]?></td></tr>
-        <tr><th class="list detail">Kontakty:</td><td class="list detail"><?php echo $request["wp_user"]."<br>".$request["email"]?></td></tr>
-        <tr><th class="list detail">Předpokládaný termín dokončení:</td><td class="list detail"><?php echo $request["duedate"]?></td></tr>
-    </table></td></tr>
-    
-<?php
-	}
-	$index = abs($index - 1);
+    }
+
+    $colorClass="colorClassNormal";
+    $abgcolor=0;
+    echo "<h2>Nové</h2>";
+    echo "<table class=\"list\">\n";
+    echo "  <tr><th class=\"list icon_cell\">Akce</th><th class=\"list\">Titul</th><th class=\"list\">Žánr</th><th class=\"list workon_cell\">Zpracovává</th></tr>\n";
+    foreach ($request_new as $request){
+	PrintOneRequest($request,$abgcolor,$colorClass,0,$dblink);
+	$abgcolor = abs($abgcolor - 1);
     }
     echo "</table>\n";
+
+    $abgcolor=0;
+    echo "<h2>Zpracovávané</h2>";
+    echo "<table class=\"list\">\n";
+    echo "  <tr><th class=\"list icon_cell\">Akce</th><th class=\"list\">Titul</th><th class=\"list\">Žánr</th><th class=\"list workon_cell\">Zpracovává</th></tr>\n";
+    foreach ($request_active as $request){
+	PrintOneRequest($request,$abgcolor,$colorClass,1,$dblink);
+	$abgcolor = abs($abgcolor - 1);
+    }
+    echo "</table>\n";
+
+    $abgcolor=0;
+    echo "<h2>Hotové - čekají na schválení</h2>";
+    echo "<table class=\"list\">\n";
+    echo "  <tr><th class=\"list icon_cell\">Akce</th><th class=\"list\">Titul</th><th class=\"list\">Žánr</th><th class=\"list workon_cell\">Zpracovává</th></tr>\n";
+    foreach ($request_waiting as $request){
+	PrintOneRequest($request,$abgcolor,$colorClass,2,$dblink);
+	$abgcolor = abs($abgcolor - 1);
+    }
+    echo "</table>\n";
+
+
+    $abgcolor=0;
+    echo "<h2 onClick='ShowHide(\"doneTable\")' id=\"doneTitle\">Hotové &rlarr;</h2>";
+    echo "<table class=\"list\" id=\"doneTable\" style=\"display: none;\">\n";
+    echo "  <tr><th class=\"list icon_cell\">Akce</th><th class=\"list\">Titul</th><th class=\"list\">Žánr</th></tr>\n";
+    foreach ($request_done as $request){
+	PrintOneRequest($request,$abgcolor,$colorClass,3,$dblink);
+	$abgcolor = abs($abgcolor - 1);
+    }
+    echo "</table>\n";
+
+    mysql_close($dblink);
 ?>

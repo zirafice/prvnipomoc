@@ -27,6 +27,7 @@
 	    $_SESSION["loggedIn"] = $user_info["ID"];
 	    $_SESSION["login"] = $user_info["login"];
 	    $_SESSION["fullname"] = $user_info["fullname"];
+	    $_SESSION["admin"] = $user_info["admin"];
 	    $_SESSION["page"] = "welcome";
 	    
 	    header("Location: index.php");
