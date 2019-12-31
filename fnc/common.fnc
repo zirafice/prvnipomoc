@@ -1,4 +1,5 @@
-function save_cover_ask($ID,$data,$dblink){
+<?php 
+function save_cover_ask($ID,$data,$dblink,$type){
     $title = mysql_escape_string($data["title"]);
     $author = mysql_escape_string($data["autor"]);
     $wp_user = mysql_escape_string($data["wpuser"]);
@@ -33,8 +34,11 @@ function save_cover_ask($ID,$data,$dblink){
 	$querystr .= ", email=NULL";
     }
     
-    $query="INSERT INTO `cover_request` SET " . $querystr;
-    
+    if ($type == 0)
+	$query="INSERT INTO `cover_request` SET " . $querystr;
+    else 
+	$query="UPDATE `cover_request` SET " . $querystr . " WHERE ID = ".$ID;
+
     mysql_query($query,$dblink)
 	or die("Chyba vlozeni - dotaz: ".$query);
 }

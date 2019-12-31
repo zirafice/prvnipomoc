@@ -4,13 +4,13 @@ if(isset($_POST["title"])){
 	or die("Chyba ppřipojení k databázi");
     mysql_select_db($db["dbname"],$dblink);
     mysql_set_charset('utf8',$dblink);
-    $ID = ;
+    $ID=$_POST["askid"];
     
-    save_cover_ask($_POST["askid"],$_POST,$dblink);
+    save_cover_ask($ID,$_POST,$dblink,1);
     
     mysql_close($dblink);
     
-    header("Location: index.php?page=thanks?ID=".$ID);
+    header("Location: index.php?page=thanks2&ID=".$ID);
     exit;
 }
 
@@ -40,6 +40,7 @@ if (isset($_POST["askid"])){
 	10 => "",
     );
     $deployChecked[$cover["DeployDate"]] = "checked";
+    include("./js/form_verify.js");
     include("./inc/edittask_form.inc");
     exit;
 }

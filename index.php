@@ -5,6 +5,10 @@
 
     if(isset($_GET["page"])){
 	$_SESSION["page"] = $_GET["page"];
+	if(isset($_GET["ID"]))
+	    $_SESSION["askID"] = $_GET["ID"];
+	else
+	    unset($_SESSION["askID"]);
 	header("Location: index.php");
 	exit;
     }

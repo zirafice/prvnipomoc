@@ -15,7 +15,7 @@ if(isset($_POST["title"])){
     mysql_set_charset('utf8',$dblink);
     $ID = time();
     
-    save_cover_ask($ID,$_POST,$dblink);
+    save_cover_ask($ID,$_POST,$dblink,0);
     
     mysql_close($dblink);
     
@@ -32,7 +32,7 @@ if(isset($_POST["title"])){
 	"From: prvni.pomoc@post.cz"
     );
     mail("prvni.pomoc@post.cz",$subject,$message,implode("\n", $headerFields));
-    header("Location: index.php?page=thanks");
+    header("Location: index.php?page=thanks&ID=".$ID);
     exit;
 }
 if(isset($_POST["confirmed"])){

@@ -1,5 +1,5 @@
 <center><h1>Změna žádosti </h1></center>
-<form name="coverrequest" method="POST" action="index.php"> 
+<form name="coverrequestedit" method="POST" action="index.php"> 
  <input type="hidden" name="askid" value="<?php echo $_POST["askid"];?>">
  <table><tr>
    <td><span class="havetobe">Jméno díla</span></td><td><input type="text" name="title" size=64 value="<?php echo $cover["title"];?>"></td></td>
@@ -34,7 +34,7 @@
  </tr><tr>
    <td>E-mail</i></td><td><input type="text" name="email" size=64 value="<?php echo $cover["email"];?>"></td>
  </tr><tr>
-   <td colspan=2 style="text-align: right"><input type="button" name="check_and_save" value="Odeslat" style="border: 1px solid black" onClick="VerifyCoverForm(document.coverrequest)"></td>
+   <td colspan=2 style="text-align: right"><input type="button" name="check_and_save" value="Odeslat" style="border: 1px solid black" onClick="VerifyCoverForm(document.coverrequestedit)"></td>
  </tr></table>
 </form>
 
